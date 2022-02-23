@@ -45,4 +45,4 @@ heuristic(Node,H) :- length(Node,H).
 
 add2frontier(Children,[],Children).
 add2frontier(Children,[H|T],[H|More]) :-
-										add2frontier(Children,T,More).	add2frontier(Children,T,More).
+	add2frontier(Children,T,More).	add2frontier(Children,T,More).
