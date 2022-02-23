@@ -1,0 +1,48 @@
+astar(Node, Path, Cost, KB):-
+    search([[Node,0,[]]], Path, Cost, KB).
+
+
+search([[Node,Val,P]|Rest], Path, Cost, KB) :- goal([[Node,Val,[Node|P]]|Rest],Cost,Path); %val not being stored with empty list
+    %write('Current head:'), write(Node), nl,
+    findall([Next,C,[Node|P]],(arc(Node,Next,X,KB), C is X+Val),Children),
+    %write('Children:'),write(Children), nl,
+	add2frontier(Children,Rest,New),
+    insert_sort(New, SortedNew),
+    %write('Frontier:'), write(SortedNew), nl,
+    search(SortedNew,Path,Cost,KB).
+
+goal([[Node,Val,P]|_],Cost,Path):- done(Node),
+    reverse(P,Path),
+    %write('Path:'), write(P), nl,
+    Cost is Val.
+
+done([]).
+
+arc([H|T],Node,C,KB) :- 
+    member([H|B],KB), 
+    append(B,T,Node),
+	length(B,L),
+    C is 1+ L/(L+1).
+
+insert_sort(List,Sorted):- i_sort(List,[],Sorted).
+
+i_sort([],Acc,Acc).
+i_sort([H|T],Acc,Sorted):-insert(H,Acc,NAcc),i_sort(T,NAcc,Sorted).
+   
+insert(X,[],[X]).
+insert(X,[Y|T],[X,Y|T]):-less-than(X,Y).
+insert(X,[Y|T],[Y|NT]):- insert(X,T,NT).
+
+reverse([],Z,Z).
+reverse([H|T],Z,Acc) :- reverse(T,Z,[H|Acc]).
+
+less-than([Node1,Cost1], [Node2,Cost2]) :-
+heuristic(Node1,Hvalue1), heuristic(Node2,Hvalue2),
+F1 is Cost1+Hvalue1, F2 is Cost2+Hvalue2,
+F1 =< F2.
+
+heuristic(Node,H) :- length(Node,H).
+
+add2frontier(Children,[],Children).
+add2frontier(Children,[H|T],[H|More]) :-
+										add2frontier(Children,T,More).	add2frontier(Children,T,More).
